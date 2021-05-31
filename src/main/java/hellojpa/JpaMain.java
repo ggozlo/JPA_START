@@ -1,9 +1,8 @@
 package hellojpa;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import org.hibernate.Hibernate;
+
+import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -74,27 +73,42 @@ public class JpaMain {
 //            List<Member> members = team1.getMembers();
 //            양방향 연관관계 에서의 호출
 
+            // 프록시 - reference 를 엔티티매니저 로 부터 받으면 탐색대상을 상속받은 프록시 객체를 받는다
+            // 프록시 객체는 원본을 필드값으로 가져서 원본 객체처럼 사용하면 프록시 객체가 그에 맞게 연결해 준다.
+            // 원본 객체가 1차 캐시에 있다면 동일성을 유지하기 위해 레퍼런스를 호출해도 원본 객체를 반환한다
+            // 반대로 프록시 객체가 먼저 1차 캐시에 잇다면 원본객체를 받아도 프록시 객체로 받는다
+            // 프록시 객체는 영속상태가 풀리거나 초기화 되거나 영속성 컨텍스트가 종료되면 초기화 불가능으로 기능하지 않는다.
 
-            Member member =new Member();
-            member.setUsername("user1");
-            member.setCreateBy("Kim");
-            member.setCreateDate(LocalDateTime.now());
+//            Member proxyMember = entityManager.getReference(Member.class, member1.getId());
+//            //프록시 객체를 생성하는 getReference 메서드, 내용물이 필요할때 초기화 하기 위해 쿼리문을 보낸다
+//            System.out.println("m1.getClass() = " + proxyMember.getClass().getName() );
+//            // 프록시 클래스 확인 ( 어떤 객체의 프록시 인지 )
+//            Hibernate.initialize(proxyMember);
+//            // 강제 초기화 (JPA 표준에는 강제 초기화 없음)
+//            System.out.println("isLoaded = " + emf.getPersistenceUnitUtil().isLoaded(proxyMember));
+//            //프록시 객체의 초기화 상태를 확인해주는 PersistenceUnitUtil 의 isLoaded 메서드
 
-            entityManager.persist(member);
+//            List<Member> mebers = entityManager.createQuery("select m from Member m join fetch m.team").getResultList();
+            // 즉시로딩, JPQL 사용시 N+1 문제로 연관 테이블 조회 쿼리를 다수 발생시킨다
 
-            Movie movie = new Movie();
-            movie.setDirector("A");
-            movie.setActor("B");
-            movie.setName("바람과함께사라지다");
-            movie.setPrice(10000);
-            entityManager.persist(movie);
+            Parent parent = new Parent();
+
+            Child child1 =new Child();
+            Child child2 = new Child();
+
+            parent.addChild(child1);
+            parent.addChild(child2);
+
+            entityManager.persist(parent);
+            // casecade 옵션이 활성화 되어 parent를 영속화 하면 타겟인 child 객체들도 영속화됨
 
             entityManager.flush();
             entityManager.clear();
 
-            Item findMovie = entityManager.find(Item.class, movie.getId());
-
-            System.out.println("findMovie = " + findMovie);
+            Parent findParent = entityManager.find(Parent.class, parent.getId());
+            //findParent.getChildList().remove(0);
+            //entityManager.remove(findParent);
+            // orphanRemoval 가 활성화 된 타겟은 영속성 컨텍스트에서 부모객체를 잃으면 DB로 delete 쿼리를 보냄
 
 
             System.out.println("======================");
@@ -102,6 +116,7 @@ public class JpaMain {
         }
         catch (Exception e) {
             transaction.rollback(); // 오류 발생시 트랜잭션 롤백
+            e.printStackTrace();
         } finally {
             entityManager.close(); // 영속성 컨텍스트 종료
         }
@@ -110,4 +125,7 @@ public class JpaMain {
 
 
     }
+
+
+
 }

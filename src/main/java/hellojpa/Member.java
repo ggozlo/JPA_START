@@ -33,7 +33,8 @@ public class Member extends BaseEntity {
 //    @Column(name = "TEAM_ID")
 //    private Long teamId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY) // fetch 의 지연로딩 설정 - 대상 레퍼런스를 프록시로 가져옴으로써 값을 호출할때 실제 데이터를 가져옴
+    // EAGER 는 관계된 모든 테이블을 즉시 가져옴
     @JoinColumn(name ="TEAM_ID") // FK 로써 TEAM 의 PK와 매핑 (연관관계의 주인 일때)
 //    @JoinColumn(name = "TEAM_ID",insertable = false, updatable = false) // 양방향 연관관계의 거울로 지정하고 싶을때
     private Team team; //연관관계의 주인은 FK를 가지는 엔티티로 잡는것이 설계상 깔끔하다.
@@ -41,7 +42,6 @@ public class Member extends BaseEntity {
     @OneToOne // 일대일 연관관계
     @JoinColumn(name = "LOCKER_ID") // 사용자애 FK 생성
     private Locker locker;
-
 
     @OneToMany(mappedBy = "member")
     private List<MemberProduct> memberProducts = new ArrayList<>();
