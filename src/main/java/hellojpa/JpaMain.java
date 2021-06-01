@@ -5,6 +5,7 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public class JpaMain {
 
@@ -91,25 +92,36 @@ public class JpaMain {
 //            List<Member> mebers = entityManager.createQuery("select m from Member m join fetch m.team").getResultList();
             // 즉시로딩, JPQL 사용시 N+1 문제로 연관 테이블 조회 쿼리를 다수 발생시킨다
 
-            Parent parent = new Parent();
 
-            Child child1 =new Child();
-            Child child2 = new Child();
-
-            parent.addChild(child1);
-            parent.addChild(child2);
-
-            entityManager.persist(parent);
+            //entityManager.persist(parent);
             // casecade 옵션이 활성화 되어 parent를 영속화 하면 타겟인 child 객체들도 영속화됨
 
-            entityManager.flush();
-            entityManager.clear();
-
-            Parent findParent = entityManager.find(Parent.class, parent.getId());
             //findParent.getChildList().remove(0);
             //entityManager.remove(findParent);
             // orphanRemoval 가 활성화 된 타겟은 영속성 컨텍스트에서 부모객체를 잃으면 DB로 delete 쿼리를 보냄
 
+
+//            Address address = new Address("city", "st", "123");
+//            entityManager.persist(member1);
+//            Address newAddress = new Address("newCity", address.getCity(), address.getStreet());
+//            member1.setHomeAddress(newAddress);
+            /*
+            * 임베디드 타입은 레퍼런스 형식 이므로 대입을 하면 복사가 아닌 참조주소를 공유하게 된다.
+            * 이 경우 두 엔티티가 동일한 임베디드 엔티티를 쓴다면 하나가 수정되도 둘다 수정되게 된다.
+            * 이를 막으려면 인스턴스복제 를 해야하며 임베디드 객체를 새로 만들어서 대입시켜야 한다
+            * 불변객체로 설계해야 한다
+            */
+
+
+
+//           findMember.getHomeAddress().setCity("newCity"); // 수정의 안좋은 경우
+//            Address a = findMember.getHomeAddress();
+//            findMember.setHomeAddress(new Address("newCoty",a.getStreet(),a.getZipcode())); // 값 필드 수정
+
+
+//            findMember.getAddressHistory().remove(new AddressEntity("old1","st","123123"));
+//            findMember.getAddressHistory().add(new Address("newCity1","st","123123"));
+            // 제거하기 위해서는 삭제를 위해선 변수와 대상의 동등성이 보장되어야 하므로 equals 메서드 재정의가 맞게 되어야 한다.
 
             System.out.println("======================");
             transaction.commit(); // 트랜잭션 커밋

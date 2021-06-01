@@ -4,9 +4,7 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity // 엔티티 선언
 //@Table(name = "hello") // 테이블명 지정
@@ -20,7 +18,8 @@ import java.util.List;
 //        table = "my_seq",
 //        pkColumnValue = "member_seq",allocationSize = 1
 //)
-public class Member extends BaseEntity {
+public class Member //extends BaseEntity
+ {
 
     @Id // PK 선언
     @GeneratedValue(strategy = GenerationType.AUTO) // PK값 자동 생선 (숫자)
@@ -46,7 +45,54 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member")
     private List<MemberProduct> memberProducts = new ArrayList<>();
 
-    public Long getId() {
+    @Embedded // 내장객체 - 필드쪽에
+    private Period workPeriod;
+
+    @Embedded
+    private Address homeAddress;
+
+    @ElementCollection // 컬렉션 원자 어노테이션
+    @CollectionTable(
+            name ="FAVORATE_FOOD",
+            joinColumns = @JoinColumn(name = "MEMBER_ID")
+    ) // 컬렉션을 지정한 이름의 테이블로 분리하는 어노테이션, 조인될 컬럼명을 지정
+    @Column(name = "FOOD_NAME") // 예외적으로 컬렉션 값타입은 column 어노테이션으로 내용 컬럼명을 수정
+    private Set<String> favoriteFoods = new HashSet<>();
+
+//    @ElementCollection
+//    @CollectionTable(
+//            name ="ADDRESS",
+//            joinColumns = @JoinColumn(name = "MEMBER_ID")) // 탐색이 어려워서 좋은 방법이 아님
+     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+     @JoinColumn(name = "MEMBER_ID")
+    private List<AddressEntity> addressHistory = new ArrayList<>();
+
+//     @Embedded
+//     @AttributeOverrides({
+//             @AttributeOverride(name = "city", column = @Column(name = "WORK_CITY")),
+//             @AttributeOverride(name = "street", column = @Column(name = "STREET_CITY")),
+//             @AttributeOverride(name = "zipcode", column = @Column(name = "ZIP_CITY"))
+//     })
+//     private Address workAddress;
+
+
+     public Period getWorkPeriod() {
+         return workPeriod;
+     }
+
+     public void setWorkPeriod(Period workPeriod) {
+         this.workPeriod = workPeriod;
+     }
+
+     public Address getHomeAddress() {
+         return homeAddress;
+     }
+
+     public void setHomeAddress(Address homeAddress) {
+         this.homeAddress = homeAddress;
+     }
+
+     public Long getId() {
         return id;
     }
 
@@ -92,9 +138,23 @@ public class Member extends BaseEntity {
         // Member측 연관관계를 간단히 맺기위해 둘이 동시에 설정해주는 메서드.
     }
 
+     public Set<String> getFavoriteFoods() {
+         return favoriteFoods;
+     }
 
+     public void setFavoriteFoods(Set<String> favoriteFoods) {
+         this.favoriteFoods = favoriteFoods;
+     }
 
-//    @Enumerated(EnumType.STRING) // 열거형
+     public List<AddressEntity> getAddressHistory() {
+         return addressHistory;
+     }
+
+     public void setAddressHistory(List<AddressEntity> addressHistory) {
+         this.addressHistory = addressHistory;
+     }
+
+     //    @Enumerated(EnumType.STRING) // 열거형
 //    private RoleType roleType;
 
 //    @Temporal(TemporalType.TIMESTAMP) // 시간 데이터
