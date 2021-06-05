@@ -3,6 +3,9 @@ package hellojpa;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -34,9 +37,9 @@ public class JpaMain {
             //비영속
 //            Member member = new Member();
 //            member.setId(101L);
-//            member.setName("HelloJPA");
-
-            //영속
+//            member.setUsername("HelloJPA");
+//
+//            //영속
 //            entityManager.persist(member);
 
             //준영속
@@ -123,7 +126,22 @@ public class JpaMain {
 //            findMember.getAddressHistory().add(new Address("newCity1","st","123123"));
             // 제거하기 위해서는 삭제를 위해선 변수와 대상의 동등성이 보장되어야 하므로 equals 메서드 재정의가 맞게 되어야 한다.
 
-            System.out.println("======================");
+//            CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
+//            CriteriaQuery<Member> query = criteriaBuilder.createQuery(Member.class);
+//            Root<Member> m = query.from(Member.class);
+//            CriteriaQuery<Member> cq = query.select(m).where(criteriaBuilder.equal(m.get("username"), "kim"));
+//            List<Member> list = entityManager.createQuery(cq).getResultList();
+            // Criteria (어렵다)
+
+            //List<Member> list = entityManager.createNativeQuery("SELECT * FROM MEMBER ").getResultList();
+            //네이티브 쿼리
+
+            // jql 와 jdbc를 직접 사용한 마이바티스, JdbcTemplate 등을 같이 쓸수 잇다.
+            // 다만 jpa는 영속화된 엔티티를 flush, commit, jpql 수행시에 쿼리화 시키므로
+            // jdbc를 쓰기전에 flush 를 해주어야 한다다
+
+
+           System.out.println("======================");
             transaction.commit(); // 트랜잭션 커밋
         }
         catch (Exception e) {

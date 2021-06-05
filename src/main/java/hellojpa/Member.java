@@ -154,6 +154,8 @@ public class Member //extends BaseEntity
          this.addressHistory = addressHistory;
      }
 
+
+
      //    @Enumerated(EnumType.STRING) // 열거형
 //    private RoleType roleType;
 
